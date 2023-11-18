@@ -1,6 +1,11 @@
 package fileencrypt;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -47,7 +52,7 @@ public class mainFrame extends javax.swing.JFrame {
 
         jLabel1.setBackground(new java.awt.Color(255, 255, 255));
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel1.setText("Encrypt & Decrypt PDF files");
+        jLabel1.setText("Encrypt & Decrypt text files");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -104,7 +109,6 @@ public class mainFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser chooser = new JFileChooser();
-        Scanner Sc = new Scanner(System.in);
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                                     "text files(.txt)", "txt");
         chooser.setFileFilter(filter);
@@ -112,13 +116,33 @@ public class mainFrame extends javax.swing.JFrame {
         int returnVal = chooser.showOpenDialog(null);
         
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-            System.out.println("You chose: " +
-                               chooser.getSelectedFile().getName());
-        }
-        
-        while (Sc.hasNextLine()) {
-            String line = Sc.nextLine();
-            System.out.println(line);
+            File myObj = new File(chooser.getSelectedFile().getPath());
+            
+            if (myObj.exists()) {
+                Scanner myReader = null;
+                
+                try {
+                    myReader = new Scanner(myObj);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                try (Scanner input = new Scanner(new File(chooser.getName())); 
+                    PrintStream output = new PrintStream(new File("/home/ale/Documents/encoded_words.txt"))) {
+                    while (input.hasNextLine()) {
+                        output.println(CaesarCipher.caesar(input.nextLine()));
+                    }
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                while (myReader.hasNextLine()) {
+                  String data = myReader.nextLine().toLowerCase();
+                  System.out.println(data);
+                } myReader.close();
+            } else {
+              System.out.println("The file does not exist.");
+            }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
